@@ -54,12 +54,62 @@ describe('MoviesService', () => {
         year: 2000
       });
 
-      const allMovies = service.getAll();
+      const allMovies = service.getAll().length;
       service.deleteOne(1);
-      const afterDelete = service.getAll();
-      expect(afterDelete.length).toEqual(allMovies.length - 1);
+      const afterDelete = service.getAll().length;
+      expect(afterDelete).toBeLessThan(allMovies);
     });
 
+    it("should return a 404", () => {
+      try{
+        service.deleteOne(999);
+      }catch(e){
+        expect(e).toBeInstanceOf(NotFoundException);
+      }
+    })
+
+  });
+
+  describe('create', () => {
+    it('should create a movie', () => {
+      const beforeCreate = service.getAll().length;
+
+      service.createMovie({
+        title: "Test Movie",
+        genres: ['test'],
+        year: 2000
+      });
+
+      const afterCreate = service.getAll().length;
+
+      expect(afterCreate).toBeGreaterThan(beforeCreate);
+      
+    });
+  });
+
+  describe('update', () => {
+    it('should update a movie', () => {
+
+
+      service.createMovie({
+        title: "Test Movie",
+        genres: ['test'],
+        year: 2000
+      });
+
+     service.update(1, {title : 'Update Test'});
+     const movie = service.getOne(1);
+     expect(movie.title).toEqual('Update Test');
+      
+    });
+    
+    it("should throw a NotFoundException", () => {
+      try{
+        service.update(999, {});
+      }catch(e){
+        expect(e).toBeInstanceOf(NotFoundException);
+      }
+    })
   });
 
 });
